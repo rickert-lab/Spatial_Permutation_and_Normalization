@@ -1,5 +1,13 @@
-library(spdep)
-library(ggplot2)
+## These packages need to be installed in R (OS-independent):
+# install.packages(c('dplyr', 'ggplot2', 'spdep', 'tidyr'))
+## package dependencies might require installation of system libraries (OS-dependent):
+# brew install pkg-config udunits gdal
+
+# message from 'spdep': "To access larger datasets in this package, install the spDataLarge package with:"
+# install.packages('spDataLarge', repos='https://nowosad.github.io/drat/', type='source')
+
+# load custom library with imports
+source("./Spatial_Perm_and_Normalization.R")
 
 
 ### Samples are first processed here to generate original and permutated CLQs for each cell to cell pair in a given sample.
