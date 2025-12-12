@@ -166,16 +166,17 @@ CLQ_permutated_matrix_gen <- function(iternum, filename, df_c) {
 
 ######################################################
 
-get_counts <- function(filename) {
-  sample_to_check <- substr(filename, start = 1, stop = nchar(filename) - nchar("_cell_type_assignment.csv"))
+write_counts <- function(sample_path, count_dir) {
+  sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
+  sample_dir <- dirname(sample_path)
 
-  prior_info_cell_types_list <- "cell_types_celesta.csv"
+  prior_info_cell_types_list <- file.path(sample_dir, "cell_types_celesta.csv")
   prior_info <- read.csv(prior_info_cell_types_list, header = TRUE, check.names = FALSE)
   cell_types <- prior_info[, 1]
   cell_types <- cell_types[1:18]
 
   ### Read in cell type assignment file
-  cell_type_assignment_file <- read.csv(filename, header = TRUE, check.names = FALSE)
+  cell_type_assignment_file <- read.csv(sample_path, header = TRUE, check.names = FALSE)
   cell_type_assignment <- cell_type_assignment_file$`Cell type number`
 
   ### table function in R gives the occurences of each variable in that column. so it will be cell type 1  : 21, cell type 2 : 432 etc.
@@ -188,9 +189,8 @@ get_counts <- function(filename) {
     by = c("cell_type_assignment")
   )
 
-
-  filename <- paste0(sample_to_check, "_CellCounts.csv")
-  write.csv(df_c, filename, row.names = FALSE)
+  count_path <- file.path(count_dir, paste0(sample_to_check, "_CellCounts.csv"))
+  write.csv(df_c, count_path, row.names = FALSE)
 
   return(df_c)
 }
@@ -375,10 +375,11 @@ significance_matrix_gen <- function(iternum,
 }
 
 
-get_counts <- function(filename) {
-  sample_to_check <- substr(filename, start = 1, stop = nchar(filename) - nchar("_cell_type_assignment.csv"))
-  filename <- paste0(sample_to_check, "_CellCounts.csv")
-  df_c <- read.csv(filename, header = TRUE, check.names = FALSE)
+read_counts <- function(sample_path, count_dir) {
+  sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
+  count_path <- file.path(count_dir, paste0(sample_to_check, "_CellCounts.csv"))
+
+  df_c <- read.csv(count_path, header = TRUE, check.names = FALSE)
 
   return(df_c)
 }
