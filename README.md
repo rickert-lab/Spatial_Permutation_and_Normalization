@@ -206,6 +206,12 @@ parameter at 0 (no clipping) and R0.05 = clipping parameter at 0.05.
 
 Note that the folder contains only a subset of the distribution plots.
 
+## Core CLQ publications and software
+
+Core publications and existing software releases from the authors of the the Co-Location Quotient (CLQ) can be found here:
+https://seg.gmu.edu/
+
+
 ## Getting help
 
 If you encounter a bug, please file an issue with a minimal reproducible
