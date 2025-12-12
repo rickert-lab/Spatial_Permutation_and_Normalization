@@ -3,7 +3,8 @@ library("dplyr")
 library("tidyr")
 library("spdep")
 
-# turn off spherical geometry used for geographic data
+# use spherical geometry (TRUE) for geography data,
+# use planar geometry (FALSE) for microscopy data
 sf::sf_use_s2(FALSE)
 
 set.seed(2024)
@@ -83,11 +84,12 @@ KNN_neighbors <- function(coords, number_of_neighbors) {
 ## functions_for_PA_analysis_2_permutated_CLQ_values_modified}
 
 # this part is taking the cell assignment information from the table.
-# needs to be sampled with replacement=FALSE (ie. N (permutation number) = X times depend on the input from the user. )
+# needs to be sampled with replacement=FALSE
+# (ie. N (permutation number) = X times depend on the input from the user. )
 # then CLQ function will be recalled with new assignments.
 
 
-CLQ_permutated_matrix_gen1 <- function(iternum, sample_path, counts, out_dir) {
+CLQ_permutated_matrix_gen1 <- function(iternum, sample_path, counts_path, out_dir) {
   sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
   sample_dir <- dirname(sample_path)
 
@@ -126,13 +128,14 @@ CLQ_permutated_matrix_gen1 <- function(iternum, sample_path, counts, out_dir) {
   ### Generating permutated CLQs
 
   for (r in 1:N_PA) {
-    ### Generating randomized data. Spatial coordinates do not change, only the cell type assignments are randomized, with replacement FALSE, so the cell counts are not changing.
+    ### Generating randomized data. Spatial coordinates do not change, only the cell type assignments are randomized,
+    ### with replacement FALSE, so the cell counts are not changing.
     cell_type_assignment_randomized <- sample(cell_type_assignment, length(cell_type_assignment), replace = FALSE)
 
     CLQ_array <- c()
     ### k is Cell type A
     for (k in 1:length(cell_type_num)) {
-      count_a <- df_c[k, "Freq"]
+      count_a <- counts_path[k, "Freq"]
       ### if the current cell type do not exist in the sample
       if (is.na(count_a)) {
         CLQ_array <- append(CLQ_array, rep(0, 18))
@@ -150,7 +153,8 @@ CLQ_permutated_matrix_gen1 <- function(iternum, sample_path, counts, out_dir) {
         CLQ_array <- append(CLQ_array, CLQ_result_R)
       }
     }
-    ### CLQ values for all combinations of the current iteration are added to the dataframe under the columnn P"iteration number", ie P1, P2 ...
+    ### CLQ values for all combinations of the current iteration are added to the dataframe
+    ### under the columnn P"iteration number", ie P1, P2 ...
     CLQ_matrix_R[, paste0("P", as.character(r))] <- CLQ_array
   }
 
@@ -159,7 +163,7 @@ CLQ_permutated_matrix_gen1 <- function(iternum, sample_path, counts, out_dir) {
   write.csv(CLQ_matrix_R, csv_path, row.names = FALSE)
 
   rds_path <- file.path(out_dir, paste0(sample_to_check, "_CLQ_Permutated.rds"))
-  saveRDS(CLQ_matrix_R, filename)
+  saveRDS(CLQ_matrix_R, rds_path)
 
 
   #############
@@ -180,7 +184,8 @@ write_counts <- function(sample_path, out_dir) {
   cell_type_assignment_file <- read.csv(sample_path, header = TRUE, check.names = FALSE)
   cell_type_assignment <- cell_type_assignment_file$`Cell type number`
 
-  ### table function in R gives the occurences of each variable in that column. so it will be cell type 1  : 21, cell type 2 : 432 etc.
+  ### table function in R gives the occurences of each variable in that column.
+  ### so it will be cell type 1  : 21, cell type 2 : 432 etc.
   counts_original <- table(cell_type_assignment)
 
   df_a <- data.frame(cell_type = cell_types, cell_type_assignment = c(1:18)) ### cell type number and the names
@@ -221,7 +226,8 @@ if (FALSE) {
 ### Read in CELESTA cell type assignments
 
 # input is f: the full name of the file.
-# this function will read the file, and will generate the original CLQ matrix, and it will save it as paste0(sample_to_check,"_CLQ.csv")
+# this function will read the file, and will generate the original CLQ matrix,
+# and it will save it as paste0(sample_to_check,"_CLQ.csv")
 
 CLQ_matrix_gen <- function(filename) {
   sample_to_check <- substr(filename, start = 1, stop = nchar(filename) - nchar("_cell_type_assignment.csv"))
@@ -301,7 +307,8 @@ CLQ_permutated_matrix_gen2 <- function(filename) {
 }
 
 
-# input: iternum (iteration number),  filename, list_of_matrices (permutated CLQ values), CLQ_matrix (original CLQ values), df_c is count table.
+# input: iternum (iteration number),  filename, list_of_matrices (permutated CLQ values),
+# CLQ_matrix (original CLQ values), df_c is count table.
 
 significance_matrix_gen <- function(iternum,
                                     filename,
@@ -328,7 +335,8 @@ significance_matrix_gen <- function(iternum,
     "percentile"
   )
 
-  ### col_array: is the column array consisting of P1, P2 up to P500 (for iteration number 500), It is used to read all the permutated CLQ values from the dataframe,
+  ### col_array: is the column array consisting of P1, P2 up to P500 (for iteration number 500),
+  ### It is used to read all the permutated CLQ values from the dataframe,
   ### and these values are put into an array, called "CLQ_array".
   col_array <- c()
   for (i in 1:iternum) {
@@ -339,7 +347,8 @@ significance_matrix_gen <- function(iternum,
     for (cB in 1:length(cell_types)) {
       CLQ_array <- c()
 
-      ### current_row is the row number calculated by the cell types number, ie. row number corresponding to the CLQ of cell type 2 and cell type 5 should be: (2-1)*18 + 5 = 23.
+      ### current_row is the row number calculated by the cell types number,
+      ### ie. row number corresponding to the CLQ of cell type 2 and cell type 5 should be: (2-1)*18 + 5 = 23.
       current_row <- (cA - 1) * length(cell_types) + cB
       CLQ_array <- unname(unlist(list_of_matrices[current_row, col_array]))
       count_a <- df_c[cA, "Freq"]
@@ -351,13 +360,15 @@ significance_matrix_gen <- function(iternum,
       original <- CLQ_matrix_original[cell_type_A, cell_type_B]
 
 
-      ### Checking percentile. If original value is on the far right of the permutated values, its rank is 1. (if far-left, it is 0)
+      ### Checking percentile. If original value is on the far right of the permutated values,
+      ### its rank is 1. (if far-left, it is 0)
       if (original > max(CLQ_array)) {
         CLQ_matrix_Rank <- 1
       } else if (original < min(CLQ_array)) {
         CLQ_matrix_Rank <- 0
       } else {
-        ### Percentile calculation: Appending original value to the permutated CLQ array, then sorting, taking the index of the original CLQ and dividing by the total sample size.
+        ### Percentile calculation: Appending original value to the permutated CLQ array, then sorting,
+        ### taking the index of the original CLQ and dividing by the total sample size.
         CLQ_matrix_Rank <- which(sort(append(CLQ_array, original)) == original)[1] / iternum
       }
       df_full[nrow(df_full) + 1, ] <- c(sample_to_check, cell_type_A, cA, count_a, cell_type_B, cB, count_b, original, CLQ_matrix_Rank)
