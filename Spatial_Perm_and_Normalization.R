@@ -1,7 +1,7 @@
-library(ggplot2)
+library("ggplot2")
 library("dplyr")
 library("tidyr")
-library(spdep)
+library("spdep")
 
 # turn off spherical geometry used for geographic data
 sf::sf_use_s2(FALSE)
@@ -87,19 +87,20 @@ KNN_neighbors <- function(coords, number_of_neighbors) {
 # then CLQ function will be recalled with new assignments.
 
 
-CLQ_permutated_matrix_gen <- function(iternum, filename, df_c) {
-  sample_to_check <- substr(filename, start = 1, stop = nchar(filename) - nchar("_cell_type_assignment.csv"))
+CLQ_permutated_matrix_gen1 <- function(iternum, sample_path, counts, out_dir) {
+  sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
+  sample_dir <- dirname(sample_path)
 
   N_PA <- iternum # permutation iteration number
 
   #### CELL_TYPES
-  prior_info_cell_types_list <- "cell_types_celesta.csv"
+  prior_info_cell_types_list <- file.path(sample_dir, "cell_types_celesta.csv")
   prior_info <- read.csv(prior_info_cell_types_list, header = TRUE, check.names = FALSE)
   cell_type_num <- seq(1, dim(prior_info)[1], by = 1)
   cell_types <- prior_info[, 1]
 
   ### Read in cell type assignment file
-  cell_type_assignment_file <- read.csv(filename, header = TRUE, check.names = FALSE)
+  cell_type_assignment_file <- read.csv(sample_path, header = TRUE, check.names = FALSE)
   cell_type_assignment <- cell_type_assignment_file$`Cell type number`
 
   ### get the X and Y coordinates
@@ -154,10 +155,10 @@ CLQ_permutated_matrix_gen <- function(iternum, filename, df_c) {
   }
 
   ### Save CLQ results file with the sample name
-  filename <- paste0(sample_to_check, "_CLQ_Permutated.csv")
-  write.csv(CLQ_matrix_R, filename, row.names = FALSE)
+  csv_path <- file.path(out_dir, paste0(sample_to_check, "_CLQ_Permutated.csv"))
+  write.csv(CLQ_matrix_R, csv_path, row.names = FALSE)
 
-  filename <- paste0(sample_to_check, "_CLQ_Permutated.rds")
+  rds_path <- file.path(out_dir, paste0(sample_to_check, "_CLQ_Permutated.rds"))
   saveRDS(CLQ_matrix_R, filename)
 
 
@@ -166,7 +167,7 @@ CLQ_permutated_matrix_gen <- function(iternum, filename, df_c) {
 
 ######################################################
 
-write_counts <- function(sample_path, count_dir) {
+write_counts <- function(sample_path, out_dir) {
   sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
   sample_dir <- dirname(sample_path)
 
@@ -189,7 +190,7 @@ write_counts <- function(sample_path, count_dir) {
     by = c("cell_type_assignment")
   )
 
-  count_path <- file.path(count_dir, paste0(sample_to_check, "_CellCounts.csv"))
+  count_path <- file.path(out_dir, paste0(sample_to_check, "_CellCounts.csv"))
   write.csv(df_c, count_path, row.names = FALSE)
 
   return(df_c)
@@ -291,7 +292,7 @@ CLQ_matrix_gen <- function(filename) {
 
 # inputs: file_name
 
-CLQ_permutated_matrix_gen <- function(filename) {
+CLQ_permutated_matrix_gen2 <- function(filename) {
   sample_to_check <- substr(filename, start = 1, stop = nchar(filename) - nchar("_cell_type_assignment.csv"))
   filename <- paste0(sample_to_check, "_CLQ_Permutated.csv")
   CLQ_Permutated_file <- read.csv(filename, header = TRUE, check.names = FALSE)
@@ -375,9 +376,9 @@ significance_matrix_gen <- function(iternum,
 }
 
 
-read_counts <- function(sample_path, count_dir) {
+read_counts <- function(sample_path, out_dir) {
   sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
-  count_path <- file.path(count_dir, paste0(sample_to_check, "_CellCounts.csv"))
+  count_path <- file.path(out_dir, paste0(sample_to_check, "_CellCounts.csv"))
 
   df_c <- read.csv(count_path, header = TRUE, check.names = FALSE)
 

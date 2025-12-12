@@ -20,21 +20,21 @@ if (length(files) == 0) {
   stop("No files found at path. Check file path and pattern!")
 }
 
-for (f in files) {
-  print(f)
-  filename_c <- f
+for (file in files) {
+  print(file)
 
-  count_file <- write_counts(sample_path = filename_c, count_dir = "./output")
+  count_file <- write_counts(sample_path = file, out_dir = "./output")
 
 
   ### CLQ_permutated_matrix_gen function is using iteration number, filename and the count_file generated in the previous step. This function is dependent on multiple functions [get_CLQ(), KNN_neighbors(), find_cell_type_neighbors()]
   ### iternum is the iteration number for permutation analysis, which is set to 500.
 
 
-  CLQ_permutated <- CLQ_permutated_matrix_gen(
+  CLQ_permutated <- CLQ_permutated_matrix_gen1(
     iternum = 500,
-    filename = filename_c,
-    df_c = count_file
+    sample_path = file,
+    counts_path = count_file,
+    out_dir = "./output"
   )
 }
 
