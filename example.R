@@ -14,47 +14,51 @@ source("./Spatial_Perm_and_Normalization.R")
 
 ### Input file name example: “TAFs1_cell_type_assignment.csv”
 
-
-files <- (Sys.glob("./input/*cell_type_assignment.csv"))
-if (length(files) == 0) {
-  stop("No files found at path. Check file path and pattern!")
-}
-
-for (file in files) {
-  print(file)
-
-  count_file <- write_counts(sample_path = file, out_dir = "./output")
-
-
-  ### CLQ_permutated_matrix_gen function is using iteration number, filename and the count_file generated in the previous step.
-  ### This function is dependent on multiple functions [get_CLQ(), KNN_neighbors(), find_cell_type_neighbors()]
-  ### iternum is the iteration number for permutation analysis, which is set to 500.
-
-
-  CLQ_permutated <- CLQ_permutated_matrix_gen1(
-    iternum = 500,
-    sample_path = file,
-    counts_path = count_file,
-    out_dir = "./output"
-  )
-}
-
 if (FALSE) {
+  files <- (Sys.glob("./input/*cell_type_assignment.csv"))
+  if (length(files) == 0) {
+    stop("No files found at path. Check file path and pattern!")
+  }
+
+  for (file in files) {
+    print(file)
+
+    count_file <- write_counts(sample_path = file, out_dir = "./output")
+
+
+    ### CLQ_permutated_matrix_gen function is using iteration number, filename and the count_file generated in the previous step.
+    ### This function is dependent on multiple functions [get_CLQ(), KNN_neighbors(), find_cell_type_neighbors()]
+    ### iternum is the iteration number for permutation analysis, which is set to 500.
+
+
+    CLQ_permutated <- CLQ_permutated_matrix_gen1(
+      iternum = 500,
+      sample_path = file,
+      counts_path = count_file,
+      out_dir = "./output"
+    )
+  }
+}
+
+if (TRUE) {
   ###
   ### Then, significance of CLQs are calculated based on their percentile.
   ### The original CLQs and permutated CLQs are retrieved for each sample through the functions [CLQ_matrix_gen(),
   ### CLQ_permutated_matrix_gen_caller(),get_counts_caller() ]
 
-  files <- (Sys.glob("*cell_type_assignment.csv"))
+  files <- (Sys.glob("./input/*cell_type_assignment.csv"))
+  if (length(files) == 0) {
+    stop("No files found at path. Check file path and pattern!")
+  }
 
-  for (f in files) {
-    print(f)
+  for (file in files) {
+    print(file)
 
-    filename_c <- f
+    CLQ_matrix <- CLQ_matrix_gen(sample_path = file)
 
-    CLQ_matrix <- CLQ_matrix_gen(filename = filename_c)
+    CLQ_permutated <- CLQ_permutated_matrix_gen_caller(sample_path = file)
 
-    CLQ_permutated <- CLQ_permutated_matrix_gen_caller(filename = filename_c)
+    stop("STOP!")
 
     count_file <- get_counts_caller(filename = filename_c)
 

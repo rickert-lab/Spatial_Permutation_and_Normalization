@@ -229,22 +229,20 @@ if (FALSE) {
 # this function will read the file, and will generate the original CLQ matrix,
 # and it will save it as paste0(sample_to_check,"_CLQ.csv")
 
-CLQ_matrix_gen <- function(filename) {
-  sample_to_check <- substr(filename, start = 1, stop = nchar(filename) - nchar("_cell_type_assignment.csv"))
+CLQ_matrix_gen <- function(sample_path) {
+  sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
+  sample_dir <- dirname(sample_path)
+  prior_info_cell_types_list <- file.path(sample_dir, "cell_types_celesta.csv")
 
-  prior_info_cell_types_list <- "cell_types_celesta.csv"
-
-  cell_type_assignment_file <- read.csv(filename, header = TRUE, check.names = FALSE)
-
+  ### Read in cell type assignment file
+  cell_type_assignment_file <- read.csv(sample_path, header = TRUE, check.names = FALSE)
   cell_type_assignment <- cell_type_assignment_file$`Cell type number`
-
 
   ### get the X and Y coordinates
   coords <- cbind(cell_type_assignment_file$X, cell_type_assignment_file$Y)
   colnames(coords) <- c("X", "Y")
 
   ### Read in prior cell-type signature matrix
-
   prior_info <- read.csv(prior_info_cell_types_list, header = TRUE, check.names = FALSE)
 
   ### Build a list with each row is a cell and each columns contain the index for the N-nearest neighbors
