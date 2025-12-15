@@ -202,27 +202,6 @@ write_counts <- function(sample_path, out_dir) {
 }
 
 
-if (FALSE) {
-  ######################################################
-
-  # File names will be found by the extension.
-  files <- (Sys.glob("*cell_type_assignment.csv"))
-
-  for (f in files) {
-    print(f)
-    filename_c <- f
-
-    count_file <- get_counts(filename = filename_c)
-
-
-    CLQ_permutated <- CLQ_permutated_matrix_gen(
-      iternum = 500,
-      filename = filename_c,
-      df_c = count_file
-    )
-  }
-}
-
 ### Read in CELESTA cell type assignments
 
 # input is f: the full name of the file.
@@ -456,46 +435,6 @@ plot_gen <- function(iternum, sample_path, list_of_matrices, CLQ_matrix_original
   }
 }
 
-if (FALSE) {
-  #################################################
-  #################################################
-  #################################################
-
-  files <- (Sys.glob("*cell_type_assignment.csv"))
-
-  for (f in files) {
-    print(f)
-
-    filename_c <- f
-
-    CLQ_matrix <- CLQ_matrix_gen(filename = filename_c)
-
-    CLQ_permutated <- CLQ_permutated_matrix_gen(filename = filename_c)
-
-    count_file <- get_counts(filename = filename_c)
-
-    significance_matrices <- significance_matrix_gen(
-      iternum = 500,
-      filename = filename_c,
-      list_of_matrices = CLQ_permutated,
-      CLQ_matrix_original = CLQ_matrix,
-      df_c = count_file
-    )
-
-    plot_gen(
-      iternum = 500,
-      filename = filename_c,
-      list_of_matrices = CLQ_permutated,
-      CLQ_matrix_original = CLQ_matrix
-    )
-  }
-
-
-  #################################################
-  #################################################
-  #################################################
-}
-
 CLQ_normalization_by_sample <- function(CLQ_before_normalization, cell_count, number_of_nearest_neighbors,
                                         threshold_rare_population = 5, prior_matrix,
                                         clipping_right_tail = 0.05, clipping_left_tail = 0,
@@ -625,38 +564,4 @@ call_normalization <- function(sample_path, righttail, lefttail, out_dir) {
   saveRDS(df_normalized_CLQ, file.path(out_dir, paste0(filename, ".rds")))
 
   return()
-}
-
-if (FALSE) {
-  #
-  # #calling the function
-  # #Example 1 : assembloid sample
-  # filename = "TAFs1_cell_type_assignment.csv"
-  # righttail = 0.05
-  # lefttail = 0
-  # call_normalization_fnc(filename , righttail , lefttail)
-  # #
-  #
-  # calling the function
-  # Example 2 : clinical specimen
-  # filename = "lepidic_58.6_cell_type_assignment.csv"
-  # righttail = 0.05
-  # lefttail = 0
-  # call_normalization_fnc(filename , righttail , lefttail)
-
-  # filename = "lepidic_58.6_cell_type_assignment.csv"
-  # righttail = 0.15
-  # lefttail = 0
-  # call_normalization_fnc(filename , righttail , lefttail)
-  #
-
-  files <- (Sys.glob("*cell_type_assignment.csv"))
-
-  for (f in files) {
-    print(f)
-    filename <- f
-    righttail <- 0.05
-    lefttail <- 0
-    call_normalization_fnc(filename, righttail, lefttail)
-  }
 }
