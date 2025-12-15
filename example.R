@@ -56,7 +56,7 @@ if (TRUE) {
 
     CLQ_matrix <- CLQ_matrix_gen(sample_path = file)
 
-    CLQ_permutated <- CLQ_permutated_matrix_gen2(sample_path = file)
+    CLQ_permutated <- CLQ_permutated_matrix_gen_caller(sample_path = file)
 
     stop("STOP!")
 
