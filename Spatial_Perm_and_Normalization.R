@@ -296,9 +296,10 @@ CLQ_matrix_gen <- function(sample_path) {
 
 # inputs: file_name
 
-CLQ_permutated_matrix_gen2 <- function(filename) {
-  sample_to_check <- substr(filename, start = 1, stop = nchar(filename) - nchar("_cell_type_assignment.csv"))
-  filename <- paste0(sample_to_check, "_CLQ_Permutated.csv")
+CLQ_permutated_matrix_gen2 <- function(sample_path, out_dir) {
+  sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
+  sample_dir <- dirname(sample_path)
+  filename <- file.path(out_dir, paste0(sample_to_check, "_CLQ_Permutated.csv"))
   CLQ_Permutated_file <- read.csv(filename, header = TRUE, check.names = FALSE)
 
   return(CLQ_Permutated_file)
