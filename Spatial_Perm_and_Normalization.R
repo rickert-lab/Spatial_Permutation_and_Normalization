@@ -499,7 +499,7 @@ if (FALSE) {
 CLQ_normalization_by_sample <- function(CLQ_before_normalization, cell_count, number_of_nearest_neighbors,
                                         threshold_rare_population = 5, prior_matrix,
                                         clipping_right_tail = 0.05, clipping_left_tail = 0,
-                                        plot_distribution = FALSE) {
+                                        plot_distribution = FALSE, sample_name, out_dir) {
   ### This function requires (1) a named vector with the original CLQ values for one sample
   ### before normalization, each element need to have a name, which is the two cell types
   ### in the cell pair, connected by "_"
@@ -523,6 +523,8 @@ CLQ_normalization_by_sample <- function(CLQ_before_normalization, cell_count, nu
   }
 
   if (plot_distribution == TRUE) {
+    pdf_path <- file.path(out_dir, paste0(sample_name, "_CLQ_normalization.pdf"))
+    pdf(pdf_path) # open file object for plotting
     plot(density(CLQ_before_normalization[is.na(CLQ_before_normalization) == FALSE]),
       col = "magenta",
       main = "Original CLQs", xlab = "CLQs before normalizaiton"
@@ -571,35 +573,36 @@ CLQ_normalization_by_sample <- function(CLQ_before_normalization, cell_count, nu
       col = "orange",
       main = "Normalized CLQ Z score", xlab = "Z scores"
     )
+    dev.off() # close file object for plotting
   }
   return(normalized_CLQ)
 }
 #######################################################################
 #######################################################################
 
-call_normalization_fnc <- function(filename, righttail, lefttail) {
-  sample_to_check <- substr(filename, start = 1, stop = nchar(filename) - nchar("_cell_type_assignment.csv"))
-  cell_type_assignment_file <- read.csv(filename, header = TRUE, check.names = FALSE)
+call_normalization <- function(sample_path, righttail, lefttail, out_dir) {
+  sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
+  sample_dir <- dirname(sample_path)
 
-  filename <- paste0(sample_to_check, "_CellCounts.csv")
-  count_file <- read.csv(filename, header = TRUE, check.names = FALSE)
-  cell_count <- count_file$Freq
+  counts_path <- file.path(out_dir, paste0(sample_to_check, "_CellCounts.csv"))
+  counts_data <- read.csv(counts_path, header = TRUE, check.names = FALSE)
+  cell_count <- counts_data$Freq
 
-  filename <- paste0(sample_to_check, "_CLQ_data_full.csv")
-  significance_matrices <- read.csv(filename, header = TRUE, check.names = FALSE)
+  signif_path <- file.path(out_dir, paste0(sample_to_check, "_CLQ_data_full.csv"))
+  significance_matrices <- read.csv(signif_path, header = TRUE, check.names = FALSE)
 
   CLQ_before_normalization <- as.numeric(significance_matrices$original_CLQ)
 
   names(CLQ_before_normalization) <- paste0(significance_matrices$Cell_A, "_", significance_matrices$Cell_B)
 
-  prior_info_cell_types_list <- "cell_types_celesta.csv"
+  prior_info_cell_types_list <- file.path(sample_dir, "cell_types_celesta.csv")
   prior_info <- read.csv(prior_info_cell_types_list, header = TRUE, check.names = FALSE)
 
   normalized_CLQ <- CLQ_normalization_by_sample(CLQ_before_normalization, cell_count,
     number_of_nearest_neighbors = 20,
     threshold_rare_population = 5, prior_matrix = prior_info,
     clipping_right_tail = righttail, clipping_left_tail = lefttail,
-    plot_distribution = TRUE
+    plot_distribution = TRUE, sample_name = sample_to_check, out_dir
   )
 
   df_normalized_CLQ <- data.frame(normalized_CLQ)
@@ -617,9 +620,9 @@ call_normalization_fnc <- function(filename, righttail, lefttail) {
   # save normalized CLQ values
   filename <- paste0(sample_to_check, "_CLQ_Normalized", "_L", lefttail, "_R", righttail)
   ##
-  write.csv(df_normalized_CLQ, paste0(filename, ".csv"), row.names = TRUE)
+  write.csv(df_normalized_CLQ, file.path(out_dir, paste0(filename, ".csv")), row.names = TRUE)
   ##
-  saveRDS(df_normalized_CLQ, paste0(filename, ".rds"))
+  saveRDS(df_normalized_CLQ, file.path(out_dir, paste0(filename, ".rds")))
 
   return()
 }

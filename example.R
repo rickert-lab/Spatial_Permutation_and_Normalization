@@ -40,7 +40,7 @@ if (FALSE) {
   }
 }
 
-if (TRUE) {
+if (FALSE) {
   ###
   ### Then, significance of CLQs are calculated based on their percentile.
   ### The original CLQs and permutated CLQs are retrieved for each sample through the functions [CLQ_matrix_gen(),
@@ -80,5 +80,39 @@ if (TRUE) {
       CLQ_matrix_original = CLQ_matrix,
       out_dir = "./output"
     )
+  }
+}
+
+#
+# #calling the function
+# #Example 1 : assembloid sample
+# filename = "TAFs1_cell_type_assignment.csv"
+# righttail = 0.05
+# lefttail = 0
+# call_normalization_fnc(filename , righttail , lefttail)
+# #
+#
+# calling the function
+# Example 2 : clinical specimen
+# filename = "lepidic_58.6_cell_type_assignment.csv"
+# righttail = 0.05
+# lefttail = 0
+# call_normalization_fnc(filename , righttail , lefttail)
+
+# filename = "lepidic_58.6_cell_type_assignment.csv"
+# righttail = 0.15
+# lefttail = 0
+# call_normalization_fnc(filename , righttail , lefttail)
+#
+
+if (TRUE) {
+  files <- (Sys.glob("./input/*cell_type_assignment.csv"))
+  if (length(files) == 0) {
+    stop("No files found at path. Check file path and pattern!")
+  }
+
+  for (file in files) {
+    print(file)
+    call_normalization(sample_path = file, righttail = 0.05, lefttail = 0.00, out_dir = "./output")
   }
 }
