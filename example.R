@@ -58,16 +58,16 @@ if (TRUE) {
 
     CLQ_permutated <- CLQ_permutated_matrix_gen2(sample_path = file, out_dir = "./output")
 
-    count_file <- get_counts_caller(filename = filename_c)
+    counts_data <- read_counts(sample_path = file, out_dir = "./output")
 
     ###  “list_of_matrices” is the 500 different CLQ sets for each iteration.
 
     significance_matrices <- significance_matrix_gen(
       iternum = 500,
-      filename = filename_c,
+      sample_path = file,
       list_of_matrices = CLQ_permutated,
       CLQ_matrix_original = CLQ_matrix,
-      df_c = count_file
+      counts_data = counts_data
     )
 
     ### plot_gen generates plot for each CLQ for a pair of cell type A to cell type B. It retrieves the permutated CLQ values
@@ -75,7 +75,7 @@ if (TRUE) {
 
     plot_gen(
       iternum = 500,
-      filename = filename_c,
+      filename = file,
       list_of_matrices = CLQ_permutated,
       CLQ_matrix_original = CLQ_matrix
     )

@@ -195,8 +195,8 @@ write_counts <- function(sample_path, out_dir) {
     by = c("cell_type_assignment")
   )
 
-  count_path <- file.path(out_dir, paste0(sample_to_check, "_CellCounts.csv"))
-  write.csv(df_c, count_path, row.names = FALSE)
+  counts_path <- file.path(out_dir, paste0(sample_to_check, "_CellCounts.csv"))
+  write.csv(df_c, counts_path, row.names = FALSE)
 
   return(df_c)
 }
@@ -310,14 +310,16 @@ CLQ_permutated_matrix_gen2 <- function(sample_path, out_dir) {
 # CLQ_matrix (original CLQ values), df_c is count table.
 
 significance_matrix_gen <- function(iternum,
-                                    filename,
+                                    sample_path,
                                     list_of_matrices,
                                     CLQ_matrix_original,
-                                    df_c) {
-  sample_to_check <- substr(filename, start = 1, stop = nchar(filename) - nchar("_cell_type_assignment.csv"))
+                                    counts_data) {
+  sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
+  sample_dir <- dirname(sample_path)
 
-  prior_info_cell_types_list <- "cell_types_celesta.csv"
+  prior_info_cell_types_list <- file.path(sample_dir, "cell_types_celesta.csv")
   prior_info <- read.csv(prior_info_cell_types_list, header = TRUE, check.names = FALSE)
+
   ### Generate a sequence from 1 to the number of cell types. In Irene's data, there are 26 cell types
   ### So it is a sequence from 1,2,3,...,26
   cell_type_num <- seq(1, dim(prior_info)[1], by = 1)
@@ -350,8 +352,8 @@ significance_matrix_gen <- function(iternum,
       ### ie. row number corresponding to the CLQ of cell type 2 and cell type 5 should be: (2-1)*18 + 5 = 23.
       current_row <- (cA - 1) * length(cell_types) + cB
       CLQ_array <- unname(unlist(list_of_matrices[current_row, col_array]))
-      count_a <- df_c[cA, "Freq"]
-      count_b <- df_c[cB, "Freq"]
+      count_a <- counts_data[cA, "Freq"]
+      count_b <- counts_data[cB, "Freq"]
       cell_type_A <- cell_types[cA]
       cell_type_B <- cell_types[cB]
 
@@ -390,9 +392,9 @@ read_counts <- function(sample_path, out_dir) {
   sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
   count_path <- file.path(out_dir, paste0(sample_to_check, "_CellCounts.csv"))
 
-  df_c <- read.csv(count_path, header = TRUE, check.names = FALSE)
+  count_data <- read.csv(count_path, header = TRUE, check.names = FALSE)
 
-  return(df_c)
+  return(count_data)
 }
 
 
