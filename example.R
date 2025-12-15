@@ -14,73 +14,70 @@ source("./Spatial_Perm_and_Normalization.R")
 
 ### Input file name example: “TAFs1_cell_type_assignment.csv”
 
-if (FALSE) {
-  files <- (Sys.glob("./input/*cell_type_assignment.csv"))
-  if (length(files) == 0) {
-    stop("No files found at path. Check file path and pattern!")
-  }
-
-  for (file in files) {
-    print(file)
-
-    count_file <- write_counts(sample_path = file, out_dir = "./output")
-
-
-    ### CLQ_permutated_matrix_gen function is using iteration number, filename and the count_file generated in the previous step.
-    ### This function is dependent on multiple functions [get_CLQ(), KNN_neighbors(), find_cell_type_neighbors()]
-    ### iternum is the iteration number for permutation analysis, which is set to 500.
-
-
-    CLQ_permutated <- CLQ_permutated_matrix_gen1(
-      iternum = 500,
-      sample_path = file,
-      counts_path = count_file,
-      out_dir = "./output"
-    )
-  }
+files <- (Sys.glob("./input/*cell_type_assignment.csv"))
+if (length(files) == 0) {
+  stop("No files found at path. Check file path and pattern!")
 }
 
-if (FALSE) {
-  ###
-  ### Then, significance of CLQs are calculated based on their percentile.
-  ### The original CLQs and permutated CLQs are retrieved for each sample through the functions [CLQ_matrix_gen(),
-  ### CLQ_permutated_matrix_gen_caller(),get_counts_caller() ]
+for (file in files) {
+  print(file)
 
-  files <- (Sys.glob("./input/*cell_type_assignment.csv"))
-  if (length(files) == 0) {
-    stop("No files found at path. Check file path and pattern!")
-  }
+  count_file <- write_counts(sample_path = file, out_dir = "./output")
 
-  for (file in files) {
-    print(file)
 
-    CLQ_matrix <- CLQ_matrix_gen(sample_path = file)
+  ### CLQ_permutated_matrix_gen function is using iteration number, filename and the count_file generated in the previous step.
+  ### This function is dependent on multiple functions [get_CLQ(), KNN_neighbors(), find_cell_type_neighbors()]
+  ### iternum is the iteration number for permutation analysis, which is set to 500.
 
-    CLQ_permutated <- CLQ_permutated_matrix_gen2(sample_path = file, out_dir = "./output")
 
-    counts_data <- read_counts(sample_path = file, out_dir = "./output")
+  CLQ_permutated <- CLQ_permutated_matrix_gen1(
+    iternum = 500,
+    sample_path = file,
+    counts_path = count_file,
+    out_dir = "./output"
+  )
+}
 
-    ###  “list_of_matrices” is the 500 different CLQ sets for each iteration.
+###
+### Then, significance of CLQs are calculated based on their percentile.
+### The original CLQs and permutated CLQs are retrieved for each sample through the functions [CLQ_matrix_gen(),
+### CLQ_permutated_matrix_gen_caller(),get_counts_caller() ]
 
-    significance_matrices <- significance_matrix_gen(
-      iternum = 500,
-      sample_path = file,
-      list_of_matrices = CLQ_permutated,
-      CLQ_matrix_original = CLQ_matrix,
-      counts_data = counts_data
-    )
+files <- (Sys.glob("./input/*cell_type_assignment.csv"))
+if (length(files) == 0) {
+  stop("No files found at path. Check file path and pattern!")
+}
 
-    ### plot_gen generates plot for each CLQ for a pair of cell type A to cell type B. It retrieves the permutated CLQ values
-    ### from CLQ_permutated, and the original CLQ values from CLQ_matrix.
+for (file in files) {
+  print(file)
 
-    plot_gen(
-      iternum = 500,
-      sample_path = file,
-      list_of_matrices = CLQ_permutated,
-      CLQ_matrix_original = CLQ_matrix,
-      out_dir = "./output"
-    )
-  }
+  CLQ_matrix <- CLQ_matrix_gen(sample_path = file, out_dir = "./output")
+
+  CLQ_permutated <- CLQ_permutated_matrix_gen2(sample_path = file, out_dir = "./output")
+
+  counts_data <- read_counts(sample_path = file, out_dir = "./output")
+
+  ###  “list_of_matrices” is the 500 different CLQ sets for each iteration.
+
+  significance_matrices <- significance_matrix_gen(
+    iternum = 500,
+    sample_path = file,
+    list_of_matrices = CLQ_permutated,
+    CLQ_matrix_original = CLQ_matrix,
+    counts_data = counts_data,
+    out_dir = "./output"
+  )
+
+  ### plot_gen generates plot for each CLQ for a pair of cell type A to cell type B. It retrieves the permutated CLQ values
+  ### from CLQ_permutated, and the original CLQ values from CLQ_matrix.
+
+  plot_gen(
+    iternum = 500,
+    sample_path = file,
+    list_of_matrices = CLQ_permutated,
+    CLQ_matrix_original = CLQ_matrix,
+    out_dir = "./output"
+  )
 }
 
 #
@@ -105,14 +102,12 @@ if (FALSE) {
 # call_normalization_fnc(filename , righttail , lefttail)
 #
 
-if (TRUE) {
-  files <- (Sys.glob("./input/*cell_type_assignment.csv"))
-  if (length(files) == 0) {
-    stop("No files found at path. Check file path and pattern!")
-  }
+files <- (Sys.glob("./input/*cell_type_assignment.csv"))
+if (length(files) == 0) {
+  stop("No files found at path. Check file path and pattern!")
+}
 
-  for (file in files) {
-    print(file)
-    call_normalization(sample_path = file, righttail = 0.05, lefttail = 0.00, out_dir = "./output")
-  }
+for (file in files) {
+  print(file)
+  call_normalization(sample_path = file, righttail = 0.05, lefttail = 0.00, out_dir = "./output")
 }

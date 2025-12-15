@@ -202,13 +202,14 @@ write_counts <- function(sample_path, out_dir) {
 }
 
 
+
 ### Read in CELESTA cell type assignments
 
 # input is f: the full name of the file.
 # this function will read the file, and will generate the original CLQ matrix,
 # and it will save it as paste0(sample_to_check,"_CLQ.csv")
 
-CLQ_matrix_gen <- function(sample_path) {
+CLQ_matrix_gen <- function(sample_path, out_dir) {
   sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
   sample_dir <- dirname(sample_path)
   prior_info_cell_types_list <- file.path(sample_dir, "cell_types_celesta.csv")
@@ -256,12 +257,12 @@ CLQ_matrix_gen <- function(sample_path) {
 
   ### This is the original CLQ file. (with real, unmodified data)
   ### Save CLQ results file with the sample name
-  filename <- paste0(sample_to_check, "_CLQ.csv")
-  write.csv(CLQ_matrix, filename)
+  csv_path <- file.path(out_dir, paste0(sample_to_check, "_CLQ.csv"))
+  write.csv(CLQ_matrix, csv_path)
 
 
-  filename <- paste0(sample_to_check, "_CLQ.rds")
-  saveRDS(CLQ_matrix, filename)
+  rds_path <- file.path(out_dir, paste0(sample_to_check, "_CLQ.rds"))
+  saveRDS(CLQ_matrix, rds_path)
 
 
   return(CLQ_matrix)
@@ -292,7 +293,8 @@ significance_matrix_gen <- function(iternum,
                                     sample_path,
                                     list_of_matrices,
                                     CLQ_matrix_original,
-                                    counts_data) {
+                                    counts_data,
+                                    out_dir) {
   sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
   sample_dir <- dirname(sample_path)
 
@@ -360,8 +362,8 @@ significance_matrix_gen <- function(iternum,
   df_full <- df_full %>% dplyr::mutate(significant = if_else(percentile <= 0.05 | percentile >= 0.95, TRUE, FALSE))
   ### Save CLQ PA analysis results
 
-  filename <- paste0(sample_to_check, "_CLQ_data_full.csv")
-  write.csv(df_full, filename)
+  clq_path <- file.path(out_dir, paste0(sample_to_check, "_CLQ_data_full.csv"))
+  write.csv(df_full, clq_path)
 
   return(df_full)
 }
