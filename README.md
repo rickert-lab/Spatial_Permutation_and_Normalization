@@ -87,7 +87,7 @@ parameter allows for better visualization when normalizing the data.
 
 ## Usage
 
-See `example.R` for a full run.
+See [`example.R`](example.R) for a full run.
 
 ## Inputs
 
