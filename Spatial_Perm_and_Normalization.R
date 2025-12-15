@@ -400,21 +400,23 @@ read_counts <- function(sample_path, out_dir) {
 
 # for loop: every combination.
 
-plot_gen <- function(iternum, filename, list_of_matrices, CLQ_matrix_original) {
+plot_gen <- function(iternum, sample_path, list_of_matrices, CLQ_matrix_original, out_dir) {
   col_array <- c()
   for (i in 1:iternum)
   {
     col_array <- append(col_array, paste0("P", as.character(i)))
   }
 
-  sample_to_check <- substr(filename, start = 1, stop = nchar(filename) - nchar("_cell_type_assignment.csv"))
+  sample_to_check <- sub("_cell_type_assignment\\.csv$", "", basename(sample_path))
+  sample_dir <- dirname(sample_path)
 
-
-  path <- file.path(paste0("./PA_figures_", sample_to_check))
-  dir.create(path)
+  plots_path <- path <- file.path(out_dir, paste0("PA_figures_", sample_to_check))
+  if (!dir.exists(plots_path)) {
+    dir.create(plots_path, recursive = TRUE)
+  }
 
   #### CELL_TYPES
-  prior_info_cell_types_list <- "cell_types_celesta.csv"
+  prior_info_cell_types_list <- file.path(sample_dir, "cell_types_celesta.csv")
   prior_info <- read.csv(prior_info_cell_types_list, header = TRUE, check.names = FALSE)
   cell_types <- prior_info[, 1]
   cell_types <- cell_types[1:18]
@@ -434,7 +436,7 @@ plot_gen <- function(iternum, filename, list_of_matrices, CLQ_matrix_original) {
         # print(original)
         next
       }
-      png(file = file.path(paste0("./PA_figures_", sample_to_check, "/cell_", cA, "_", cB, ".png")), width = 1000, height = 600, res = 200)
+      png(file = file.path(plots_path, paste0("/cell_", cA, "_", cB, ".png")), width = 1000, height = 600, res = 200)
       par(cex.axis = 1.0)
       plot <- hist(na.omit(CLQ_array),
         breaks = 50, col = "grey", main = paste0(cell_type_A, "\n", cell_type_B),

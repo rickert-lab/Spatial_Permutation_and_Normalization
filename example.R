@@ -75,9 +75,10 @@ if (TRUE) {
 
     plot_gen(
       iternum = 500,
-      filename = file,
+      sample_path = file,
       list_of_matrices = CLQ_permutated,
-      CLQ_matrix_original = CLQ_matrix
+      CLQ_matrix_original = CLQ_matrix,
+      out_dir = "./output"
     )
   }
 }
